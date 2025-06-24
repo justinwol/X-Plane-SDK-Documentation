@@ -1,0 +1,115 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "X-Plane 12 SDK",
+  "description": "Complete X-Plane 12 SDK documentation including XPLM APIs, Widget system, and development guides",
+  "version": "1.0.0",
+  "folders": [
+    "docs"
+  ],
+  "excludeFolders": [
+    "raw_data",
+    "scripts",
+    "__pycache__",
+    ".git",
+    "node_modules",
+    "build",
+    "dist"
+  ],
+  "excludeFiles": [
+    "*.json",
+    "*.py",
+    "*.pyc",
+    "*.log",
+    "*.tmp",
+    "*.cache",
+    ".gitignore",
+    ".DS_Store",
+    "Thumbs.db"
+  ],
+  "includePatterns": [
+    "*.md",
+    "*.txt",
+    "README*"
+  ],
+  "rules": [
+    "Use XPLM prefix for all X-Plane API functions",
+    "Include proper error handling for all API calls",
+    "Reference official X-Plane documentation for latest updates",
+    "Use appropriate data types as defined in XPLM headers",
+    "Follow X-Plane SDK naming conventions for plugins",
+    "Include function signatures with parameter descriptions",
+    "Provide code examples for complex API usage",
+    "Document callback function requirements and signatures",
+    "Include version compatibility information for API functions",
+    "Reference related API functions in cross-references",
+    "Use proper C/C++ syntax in code examples",
+    "Include error codes and their meanings",
+    "Document thread safety considerations for API calls",
+    "Provide performance considerations for resource-intensive operations",
+    "Include platform-specific implementation notes where applicable"
+  ],
+  "metadata": {
+    "sdkVersion": "4.0.0",
+    "xplaneVersion": "12.x",
+    "language": "C/C++",
+    "platform": "Cross-platform",
+    "lastUpdated": "2024-12-24",
+    "moduleCount": 14,
+    "apiCategories": [
+      "Camera",
+      "Data Access",
+      "Display",
+      "Graphics",
+      "Instance",
+      "Map",
+      "Menus",
+      "Navigation",
+      "Planes",
+      "Plugin",
+      "Processing",
+      "Scenery",
+      "Sound",
+      "Utilities"
+    ],
+    "widgetSystem": true,
+    "examplesIncluded": true
+  },
+  "structure": {
+    "api": {
+      "path": "docs/api",
+      "description": "XPLM API reference documentation",
+      "modules": 14
+    },
+    "widgets": {
+      "path": "docs/widgets",
+      "description": "Widget system documentation"
+    },
+    "modules": {
+      "path": "docs/modules",
+      "description": "Additional SDK modules and APIs"
+    },
+    "examples": {
+      "path": "docs/examples",
+      "description": "Code examples and tutorials"
+    }
+  },
+  "guidelines": {
+    "codeExamples": "All code examples should be complete, compilable, and follow X-Plane SDK best practices",
+    "apiDocumentation": "Include function purpose, parameters, return values, and usage notes",
+    "errorHandling": "Document all possible error conditions and appropriate handling strategies",
+    "crossReferences": "Link related functions and concepts throughout the documentation",
+    "versionInfo": "Include SDK version requirements and compatibility notes"
+  },
+  "tags": [
+    "x-plane",
+    "sdk",
+    "xplm",
+    "plugin-development",
+    "flight-simulator",
+    "api-reference",
+    "c-cpp",
+    "widgets",
+    "graphics",
+    "aviation"
+  ]
+}
