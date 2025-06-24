@@ -2,72 +2,143 @@
 title: "Utilities APIs"
 description: "X-Plane SDK Utilities APIs documentation"
 category: "XPLM_Utilities"
-date: "2025-06-24T17:03:49.977216"
+date: "2025-06-24T17:34:11.207525"
 ---
 
 # Utilities APIs
 
-# [XPLMUtilities](/sdk/XPLMUtilities/)API
-
-## FILE UTILITIES
-
-The[XPLMUtilities](/sdk/XPLMUtilities/)file APIs provide some basic file and
-path functions for use with X-Plane.
-
-## Directory Separators
-
-The XPLM has two modes it can work in:
-
-- X-Plane native paths: all paths are UTF8 strings, using the unix forward slash
-  (/) as the directory separating character. In native path mode, you use the same
-  path format for all three operating systems.
-- Legacy OS paths: the directroy separator is \ for Windows, : for OS X, and / for
-  Linux; OS paths are encoded in MacRoman for OS X using legacy HFS conventions,
-  use the application code page for multi-byte encoding on Unix using DOS path
-  conventions, and use UTF-8 for Linux.
-
-While legacy OS paths are the default, we strongly encourage you to opt in to
-native paths using the[XPLMEnableFeature](/sdk/XPLMEnableFeature/)API.
-
-- All OS X plugins should enable native paths all of the time; if you do not do
-  this, you will have to convert all paths back from HFS to Unix (and deal with
-  MacRoman) - code written using native paths and the C file APIs “just works” on
-  OS X.
-- For Linux plugins, there is no difference between the two encodings.
-- Windows plugins will need to convert the UTF8 file paths to UTF16 for use with
-  the “wide” APIs. While it might seem tempting to stick with legacy OS paths (and
-  just use the “ANSI” Windows APIs), X-Plane is fully unicode-capable, and will
-  often be installed in paths where the user’s directories have no ACP encoding.
-
-## Full and Relative Paths
-
-Some of these APIs use full paths, but others use paths relative to the user’s
-X-Plane installation. This is documented on a per-API basis.
-
-### [XPLMDataFileType](/sdk/XPLMDataFileType/)
-
-These enums define types of data files you can load or unload using the SDK.
-
-| Name | Value | Description |
-| --- | --- | --- |
-| [xplm_DataFile_Situation](/sdk/xplm_DataFile_Situation/) | "1" | A situation
-(.sit) file, which starts off a flight in a given configuration. |
-| [xplm_DataFile_ReplayMovie](/sdk/xplm_DataFile_ReplayMovie/) | "2" | A
-situation movie (.smo) file, which replays a past flight. |
-
-### [XPLMGetSystemPath](/sdk/XPLMGetSystemPath/)
+### [XPLMAvionicsKeyboard_f](/sdk/XPLMAvionicsKeyboard_f/)
 
 ```cpp
-XPLM_API void       XPLMGetSystemPath(
-                         char *               outSystemPath);
+typedef int (* XPLMAvionicsKeyboard_f)(
+                         char                 inKey,
+                         XPLMKeyFlags         inFlags,
+                         char                 inVirtualKey,
+                         void *               inRefCon,
+                         int                  losingFocus);
 
 ```
 
-This function returns the full path to the X-System folder. Note that this is a
-directory path, so it ends in a trailing : or / .
+Key callback called when your device is popped up and you’ve requested to
+capture the keyboard. Return 1 to consume the event, or 0 to let X-Plane process
+it (for stock avionics devices).
 
-The buffer you pass should be at least 512 characters long. The path is returned
-using the current native or OS path conventions.
+### [XPLMAvionicsMouseWheel_f](/sdk/XPLMAvionicsMouseWheel_f/)
+
+```cpp
+typedef int (* XPLMAvionicsMouseWheel_f)(
+                         int                  x,
+                         int                  y,
+                         int                  wheel,
+                         int                  clicks,
+                         void *               inRefcon);
+
+```
+
+Mouse wheel callback for scroll actions into your screen or (2D-popup) bezel,
+useful if your bezel has knobs that can be turned using the mouse wheel, or if
+you want to simulate pinch-to-zoom on a touchscreen. Return 1 to consume the
+event, or 0 to let X-Plane process it (for stock avionics devices). The number
+of “clicks” indicates how far the wheel was turned since the last callback. The
+wheel is 0 for the vertical axis or 1 for the horizontal axis (for OS/mouse
+combinations that support this).
+
+### [XPLMAvionicsMouse_f](/sdk/XPLMAvionicsMouse_f/)
+
+```cpp
+typedef int (* XPLMAvionicsMouse_f)(
+                         int                  x,
+                         int                  y,
+                         XPLMMouseStatus      inMouse,
+                         void *               inRefcon);
+
+```
+
+Mouse click callback for clicks into your screen or (2D-popup) bezel, useful if
+the device you are making simulates a touch-screen the user can click in the 3d
+cockpit, or if your pop-up’s bezel has buttons that the user can click. Return 1
+to consume the event, or 0 to let X-Plane process it (for stock avionics
+devices).
+
+### [XPLMCountHotKeys](/sdk/XPLMCountHotKeys/)
+
+```cpp
+XPLM_API int        XPLMCountHotKeys(void);
+
+```
+
+Returns the number of current hot keys.
+
+### [XPLMGetHotKeyInfo](/sdk/XPLMGetHotKeyInfo/)
+
+```cpp
+XPLM_API void       XPLMGetHotKeyInfo(
+                         XPLMHotKeyID         inHotKey,
+                         char *               outVirtualKey,    /* Can be NULL */
+                         XPLMKeyFlags *       outFlags,    /* Can be NULL */
+                         char *               outDescription,    /* Can be NULL */
+                         XPLMPluginID *       outPlugin);    /* Can be NULL */
+
+```
+
+Returns information about the hot key. Return NULL for any parameter you don’t
+want info about. The description should be at least 512 chars long.
+
+### [XPLMGetLanguage](/sdk/XPLMGetLanguage/)
+
+```cpp
+XPLM_API XPLMLanguageCode XPLMGetLanguage(void);
+
+```
+
+This routine returns the langauge the sim is running in.
+
+### [XPLMGetMouseLocation](/sdk/XPLMGetMouseLocation/)
+
+```cpp
+XPLM_API void       XPLMGetMouseLocation(
+                         int *                outX,    /* Can be NULL */
+                         int *                outY);    /* Can be NULL */
+
+```
+
+Deprecated in XPLM300. Modern windows should
+use[XPLMGetMouseLocationGlobal](/sdk/XPLMGetMouseLocationGlobal/)() instead.
+
+This routine returns the current mouse location in pixels relative to the main
+X-Plane window. The bottom left corner of the main window is (0, 0). Pass NULL
+to not receive info about either parameter.
+
+Because this function gives the mouse position relative to the main X-Plane
+window (rather than in global bounds), this function should only be used by
+legacy windows. Modern windows should instead get the mouse position in global
+desktop coordinates
+using[XPLMGetMouseLocationGlobal](/sdk/XPLMGetMouseLocationGlobal/)().
+
+Note that
+unlike[XPLMGetMouseLocationGlobal](/sdk/XPLMGetMouseLocationGlobal/)(), if the
+mouse goes outside the user’s main monitor (for instance, to a pop out window or
+a secondary monitor), this function will not reflect it.
+
+### [XPLMGetMyID](/sdk/XPLMGetMyID/)
+
+```cpp
+XPLM_API XPLMPluginID XPLMGetMyID(void);
+
+```
+
+This routine returns the plugin ID of the calling plug-in. Call this to get your
+own ID.
+
+### [XPLMGetNthHotKey](/sdk/XPLMGetNthHotKey/)
+
+```cpp
+XPLM_API XPLMHotKeyID XPLMGetNthHotKey(
+                         int                  inIndex);
+
+```
+
+Returns a hot key by index, for iteration on all hot keys.
 
 ### [XPLMGetPrefsPath](/sdk/XPLMGetPrefsPath/)
 
@@ -85,177 +156,19 @@ using[XPLMExtractFileAndPath](/sdk/XPLMExtractFileAndPath/)).
 The buffer you pass should be at least 512 characters long. The path is returned
 using the current native or OS path conventions.
 
-### [XPLMGetDirectorySeparator](/sdk/XPLMGetDirectorySeparator/)
+### [XPLMGetSystemPath](/sdk/XPLMGetSystemPath/)
 
 ```cpp
-XPLM_API const char * XPLMGetDirectorySeparator(void);
+XPLM_API void       XPLMGetSystemPath(
+                         char *               outSystemPath);
 
 ```
 
-This routine returns a string with one char and a null terminator that is the
-directory separator for the current platform. This allows you to write code that
-concatenates directory paths without having to #ifdef for platform. The
-character returned will reflect the current file path mode.
+This function returns the full path to the X-System folder. Note that this is a
+directory path, so it ends in a trailing : or / .
 
-### [XPLMExtractFileAndPath](/sdk/XPLMExtractFileAndPath/)
-
-```cpp
-XPLM_API char *     XPLMExtractFileAndPath(
-                         char *               inFullPath);
-
-```
-
-Given a full path to a file, this routine separates the path from the file. If
-the path is a partial directory (e.g. ends in : or / ) the trailing directory
-separator is removed. This routine works in-place; a pointer to the file part of
-the buffer is returned; the original buffer still starts with the path and is
-null terminated with no trailing separator.
-
-### [XPLMGetDirectoryContents](/sdk/XPLMGetDirectoryContents/)
-
-```cpp
-XPLM_API int        XPLMGetDirectoryContents(
-                         const char *         inDirectoryPath,
-                         int                  inFirstReturn,
-                         char *               outFileNames,
-                         int                  inFileNameBufSize,
-                         char **              outIndices,    /* Can be NULL */
-                         int                  inIndexCount,
-                         int *                outTotalFiles,    /* Can be NULL */
-                         int *                outReturnedFiles);    /* Can be NULL */
-
-```
-
-This routine returns a list of files in a directory (specified by a full path,
-no trailing : or / ). The output is returned as a list of NULL terminated
-strings. An index array (if specified) is filled with pointers into the strings.
-The last file is indicated by a zero-length string (and NULL in the indices).
-This routine will return 1 if you had capacity for all files or 0 if you did
-not. You can also skip a given number of files.
-
-- inDirectoryPath - a null terminated C string containing the full path to the
-  directory with no trailing directory char.
-- inFirstReturn - the zero-based index of the first file in the directory to
-  return. (Usually zero to fetch all in one pass.)
-- outFileNames - a buffer to receive a series of sequential null terminated
-  C-string file names. A zero-length C string will be appended to the very end.
-- inFileNameBufSize - the size of the file name buffer in bytes.
-- outIndices - a pointer to an array of character pointers that will become an
-  index into the directory. The last file will be followed by a NULL value. Pass
-  NULL if you do not want indexing information.
-- inIndexCount - the max size of the index in entries.
-- outTotalFiles - if not NULL, this is filled in with the number of files in the
-  directory.
-- outReturnedFiles - if not NULL, the number of files returned by this iteration.
-
-Return value: 1 if all info could be returned, 0 if there was a buffer overrun.
-
-WARNING: Before X-Plane 7 this routine did not properly iterate through
-directories. If X-Plane 6 compatibility is needed, use your own code to iterate
-directories.
-
-### [XPLMLoadDataFile](/sdk/XPLMLoadDataFile/)
-
-```cpp
-XPLM_API int        XPLMLoadDataFile(
-                         XPLMDataFileType     inFileType,
-                         const char *         inFilePath);    /* Can be NULL */
-
-```
-
-Loads a data file of a given type. Paths must be relative to the X-System
-folder. To clear the replay, pass a NULL file name (this is only valid with
-replay movies, not sit files).
-
-### [XPLMSaveDataFile](/sdk/XPLMSaveDataFile/)
-
-```cpp
-XPLM_API int        XPLMSaveDataFile(
-                         XPLMDataFileType     inFileType,
-                         const char *         inFilePath);
-
-```
-
-Saves the current situation or replay; paths are relative to the X-System
-folder.
-
-## X-PLANE MISC
-
-### [XPLMHostApplicationID](/sdk/XPLMHostApplicationID/)
-
-While the plug-in SDK is only accessible to plugins running inside X-Plane, the
-original authors considered extending the API to other applications that shared
-basic infrastructure with X-Plane. These enumerations are hold-overs from that
-original roadmap; all values other than X-Plane are deprecated. Your plugin
-should never need this enumeration.
-
-| Name | Value | Description |
-| --- | --- | --- |
-| [xplm_Host_Unknown](/sdk/xplm_Host_Unknown/) | "0" |
-| [xplm_Host_XPlane](/sdk/xplm_Host_XPlane/) | "1" |
-| [xplm_Host_PlaneMaker](/sdk/xplm_Host_PlaneMaker/) | "2" |
-| [xplm_Host_WorldMaker](/sdk/xplm_Host_WorldMaker/) | "3" |
-| [xplm_Host_Briefer](/sdk/xplm_Host_Briefer/) | "4" |
-| [xplm_Host_PartMaker](/sdk/xplm_Host_PartMaker/) | "5" |
-| [xplm_Host_YoungsMod](/sdk/xplm_Host_YoungsMod/) | "6" |
-| [xplm_Host_XAuto](/sdk/xplm_Host_XAuto/) | "7" |
-| [xplm_Host_Xavion](/sdk/xplm_Host_Xavion/) | "8" |
-| [xplm_Host_Control_Pad](/sdk/xplm_Host_Control_Pad/) | "9" |
-| [xplm_Host_PFD_Map](/sdk/xplm_Host_PFD_Map/) | "10" |
-| [xplm_Host_RADAR](/sdk/xplm_Host_RADAR/) | "11" |
-
-### [XPLMLanguageCode](/sdk/XPLMLanguageCode/)
-
-These enums define what language the sim is running in. These enumerations do
-not imply that the sim can or does run in all of these languages; they simply
-provide a known encoding in the event that a given sim version is localized to a
-certain language.
-
-| Name | Value | Description |
-| --- | --- | --- |
-| [xplm_Language_Unknown](/sdk/xplm_Language_Unknown/) | "0" |
-| [xplm_Language_English](/sdk/xplm_Language_English/) | "1" |
-| [xplm_Language_French](/sdk/xplm_Language_French/) | "2" |
-| [xplm_Language_German](/sdk/xplm_Language_German/) | "3" |
-| [xplm_Language_Italian](/sdk/xplm_Language_Italian/) | "4" |
-| [xplm_Language_Spanish](/sdk/xplm_Language_Spanish/) | "5" |
-| [xplm_Language_Korean](/sdk/xplm_Language_Korean/) | "6" |
-| [xplm_Language_Russian](/sdk/xplm_Language_Russian/) | "7" |
-| [xplm_Language_Greek](/sdk/xplm_Language_Greek/) | "8" |
-| [xplm_Language_Japanese](/sdk/xplm_Language_Japanese/) | "9" |
-| [xplm_Language_Chinese](/sdk/xplm_Language_Chinese/) | "10" |
-| [xplm_Language_Ukrainian](/sdk/xplm_Language_Ukrainian/) | "11" |
-
-### [XPLMError_f](/sdk/XPLMError_f/)
-
-```cpp
-typedef void (* XPLMError_f)(
-                         const char *         inMessage);
-
-```
-
-An XPLM error callback is a function that you provide to receive debugging
-information from the plugin SDK.
-See[XPLMSetErrorCallback](/sdk/XPLMSetErrorCallback/)for more information. NOTE:
-for the sake of debugging, your error callback will be called even if your
-plugin is not enabled, allowing you to receive debug info in your XPluginStart
-and XPluginStop callbacks. To avoid causing logic errors in the management code,
-do not call any other plugin routines from your error callback - it is only
-meant for catching errors in the debugging.
-
-### [XPLMInitialized](/sdk/XPLMInitialized/)
-
-```cpp
-XPLM_API int        XPLMInitialized(void);
-
-```
-
-Deprecated: This function returns 1 if X-Plane has properly initialized the
-plug-in system. If this routine returns 0, many XPLM functions will not work.
-
-NOTE: because plugins are always called from within the XPLM, there is no need
-to check for initialization; it will always return 1. This routine is deprecated
-- you do not need to check it before continuing within your plugin.
+The buffer you pass should be at least 512 characters long. The path is returned
+using the current native or OS path conventions.
 
 ### [XPLMGetVersions](/sdk/XPLMGetVersions/)
 
@@ -275,599 +188,278 @@ host ID of the app running us.
 The most common use of this routine is to special-case around X-Plane
 version-specific behavior.
 
-### [XPLMGetLanguage](/sdk/XPLMGetLanguage/)
+### [XPLMHandleMouseClick_f](/sdk/XPLMHandleMouseClick_f/)
 
 ```cpp
-XPLM_API XPLMLanguageCode XPLMGetLanguage(void);
+typedef int (* XPLMHandleMouseClick_f)(
+                         XPLMWindowID         inWindowID,
+                         int                  x,
+                         int                  y,
+                         XPLMMouseStatus      inMouse,
+                         void *               inRefcon);
 
 ```
 
-This routine returns the langauge the sim is running in.
+You receive this call for one of three events:
 
-### [XPLMFindSymbol](/sdk/XPLMFindSymbol/)
+- when the user clicks the mouse button down
+- (optionally) when the user drags the mouse after a down-click, but before the up-click
+- when the user releases the down-clicked mouse button.
+
+You receive the x and y of the click, your window, and a refcon. Return 1 to
+consume the click, or 0 to pass it through.
+
+WARNING: passing clicks through windows (as of this writing) causes mouse
+tracking problems in X-Plane; do not use this feature!
+
+The units for x and y values match the units used in your window. Thus, for
+“modern” windows (those created
+via[XPLMCreateWindowEx](/sdk/XPLMCreateWindowEx/)() and compiled against the
+XPLM300 library), the units are boxels, while legacy windows will get pixels.
+Legacy windows have their origin in the lower left of the main X-Plane window,
+while modern windows have their origin in the lower left of the global desktop
+space. In both cases, x increases as you move right, and y increases as you move
+up.
+
+### [XPLMHandleMouseWheel_f](/sdk/XPLMHandleMouseWheel_f/)
 
 ```cpp
-XPLM_API void *     XPLMFindSymbol(
-                         const char *         inString);
+typedef int (* XPLMHandleMouseWheel_f)(
+                         XPLMWindowID         inWindowID,
+                         int                  x,
+                         int                  y,
+                         int                  wheel,
+                         int                  clicks,
+                         void *               inRefcon);
 
 ```
 
-This routine will attempt to find the symbol passed in the inString parameter.
-If the symbol is found a pointer the function is returned, othewise the function
-will return NULL.
+The SDK calls your mouse wheel callback when one of the mouse wheels is scrolled
+within your window. Return 1 to consume the mouse wheel movement or 0 to pass
+them on to a lower window. (If your window appears opaque to the user, you
+should consume mouse wheel scrolling even if it does nothing.) The number of
+“clicks” indicates how far the wheel was turned since the last callback. The
+wheel is 0 for the vertical axis or 1 for the horizontal axis (for OS/mouse
+combinations that support this).
 
-You can use[XPLMFindSymbol](/sdk/XPLMFindSymbol/)to utilize newer SDK API
-features without requiring newer versions of the SDK (and X-Plane) as your
-minimum X-Plane version as follows:
+The units for x and y values match the units used in your window. Thus, for
+“modern” windows (those created
+via[XPLMCreateWindowEx](/sdk/XPLMCreateWindowEx/)() and compiled against the
+XPLM300 library), the units are boxels, while legacy windows will get pixels.
+Legacy windows have their origin in the lower left of the main X-Plane window,
+while modern windows have their origin in the lower left of the global desktop
+space. In both cases, x increases as you move right, and y increases as you move
+up.
 
-- Define the XPLMnnn macro to the minimum required XPLM version you will ship with
-  (e.g. XPLM210 for X-Plane 10 compatibility).
-- Use[XPLMGetVersions](/sdk/XPLMGetVersions/)and[XPLMFindSymbol](/sdk/XPLMFindSymbol/)to
-  detect that the host sim is new enough to use new functions and resolve function
-  pointers.
-- Conditionally use the new functions if and only
-  if[XPLMFindSymbol](/sdk/XPLMFindSymbol/)only returns a non- NULL pointer.
-
-Warning: you should always check the XPLM API version as well as the results
-of[XPLMFindSymbol](/sdk/XPLMFindSymbol/)to determine if funtionality is safe to
-use.
-
-To use functionality via[XPLMFindSymbol](/sdk/XPLMFindSymbol/)you will need to
-copy your own definitions of the X-Plane API prototypes and cast the returned
-pointer to the correct type.
-
-### [XPLMSetErrorCallback](/sdk/XPLMSetErrorCallback/)
+### [XPLMHasAvionicsKeyboardFocus](/sdk/XPLMHasAvionicsKeyboardFocus/)
 
 ```cpp
-XPLM_API void       XPLMSetErrorCallback(
-                         XPLMError_f          inCallback);
+XPLM_API int        XPLMHasAvionicsKeyboardFocus(
+                         XPLMAvionicsID       inHandle);
 
 ```
 
-[XPLMSetErrorCallback](/sdk/XPLMSetErrorCallback/)installs an error-reporting
-callback for your plugin. Normally the plugin system performs minimum
-diagnostics to maximize performance. When you install an error callback, you
-will receive calls due to certain plugin errors, such as passing bad parameters
-or incorrect data.
+Returns true (1) if the popup window for a cockpit device has keyboard focus.
 
-Important: the error callback determines*programming*errors, e.g. bad API
-parameters. Every error that is returned by the error callback represents a
-mistake in your plugin that you should fix. Error callbacks are not used to
-report expected run-time problems (e.g. disk I/O errors).
-
-The intention is for you to install the error callback during debug sections and
-put a break-point inside your callback. This will cause you to break into the
-debugger from within the SDK at the point in your plugin where you made an
-illegal call.
-
-Installing an error callback may activate error checking code that would not
-normally run, and this may adversely affect performance, so do not leave error
-callbacks installed in shipping plugins. Since the only useful response to an
-error is to change code, error callbacks are not useful “in the field”.
-
-### [XPLMDebugString](/sdk/XPLMDebugString/)
+### [XPLMHasKeyboardFocus](/sdk/XPLMHasKeyboardFocus/)
 
 ```cpp
-XPLM_API void       XPLMDebugString(
-                         const char *         inString);
+XPLM_API int        XPLMHasKeyboardFocus(
+                         XPLMWindowID         inWindow);
 
 ```
 
-This routine outputs a C-style string to the Log.txt file. The file is
-immediately flushed so you will not lose data. (This does cause a performance
-penalty.)
+Returns true (1) if the indicated window has keyboard focus. Pass a window ID of
+0 to see if no plugin window has focus, and all keystrokes will go directly to
+X-Plane.
 
-Please do*not*leave routine diagnostic logging enabled in your shipping plugin.
-The X-Plane Log file is shared by X-Plane and every plugin in the system, and
-plugins that (when functioning normally) print verbose log output make it
-difficult for developers to find error conditions from other parts of the
-system.
-
-### [XPLMSpeakString](/sdk/XPLMSpeakString/)
+### [XPLMHotKeyID](/sdk/XPLMHotKeyID/)
 
 ```cpp
-XPLM_API void       XPLMSpeakString(
-                         const char *         inString);
+typedef void * XPLMHotKeyID;
+```
+
+An opaque ID used to identify a hot key.
+
+### [XPLMHotKey_f](/sdk/XPLMHotKey_f/)
+
+```cpp
+typedef void (* XPLMHotKey_f)(
+                         void *               inRefcon);
 
 ```
 
-This function displays the string in a translucent overlay over the current
-display and also speaks the string if text-to-speech is enabled. The string is
-spoken asynchronously, this function returns immediately. This function may not
-speak or print depending on user preferences.
+Your hot key callback simply takes a pointer of your choosing.
 
-### [XPLMGetVirtualKeyDescription](/sdk/XPLMGetVirtualKeyDescription/)
+### [XPLMMouseStatus](/sdk/XPLMMouseStatus/)
 
 ```cpp
-XPLM_API const char * XPLMGetVirtualKeyDescription(
-                         char                 inVirtualKey);
+When the mouse is clicked, your mouse click routine is called repeatedly.  It is first called with the
+mouse down message.  It is then called zero or more times with the mouse-drag message, and finally it
+is called once with the mouse up message.  All of these messages will be directed to the same window;
+you are guaranteed to not receive a drag or mouse-up event without first receiving the corresponding mouse-down.
 
 ```
-
-Given a virtual key code (as defined in[XPLMDefs](/sdk/XPLMDefs/).h) this
-routine returns a human-readable string describing the character. This routine
-is provided for showing users what keyboard mappings they have set up. The
-string may read ‘unknown’ or be a blank or NULL string if the virtual key is
-unknown.
-
-### [XPLMReloadScenery](/sdk/XPLMReloadScenery/)
-
-```cpp
-XPLM_API void       XPLMReloadScenery(void);
-
-```
-
-[XPLMReloadScenery](/sdk/XPLMReloadScenery/)reloads the current set of scenery.
-You can use this function in two typical ways: simply call it to reload the
-scenery, picking up any new installed scenery, .env files, etc. from disk. Or,
-change the lat/ref and lon/ref datarefs and then call this function to shift the
-scenery environment. This routine is equivalent to picking “reload scenery” from
-the developer menu.
-
-## X-PLANE COMMAND MANAGEMENT
-
-The command management APIs let plugins interact with the command-system in
-X-Plane, the abstraction behind keyboard presses and joystick buttons. This API
-lets you create new commands and modify the behavior (or get notification) of
-existing ones.
-
-## X-Plane Command Phases
-
-X-Plane commands are not instantaneous; they operate over a duration. (Think of
-a joystick button press - you can press, hold down, and then release the
-joystick button; X-Plane commands model this entire process.)
-
-An X-Plane command consists of three phases: a beginning, continuous repetition,
-and an ending. The command may be repeated zero times in its duration, followed
-by one command ending. Command begin and end messges are balanced, but a command
-may be bound to more than one event source (e.g. a keyboard key and a joystick
-button), in which case you may receive a second begin during before any end).
-
-When you issue commands in the plugin system, you*must*balance every call
-to[XPLMCommandBegin](/sdk/XPLMCommandBegin/)with a call
-to[XPLMCommandEnd](/sdk/XPLMCommandEnd/)with the same command reference.
-
-## Command Behavior Modification
-
-You can register a callback to handle a command either before or after X-Plane
-does; if you receive the command before X-Plane you have the option to either
-let X-Plane handle the command or hide the command from X-Plane. This lets
-plugins both augment commands and replace them.
-
-If you register for an existing command, be sure that you are*consistent*in
-letting X-Plane handle or not handle the command; you are responsible for
-passing a*balanced*number of begin and end messages to X-Plane. (E.g. it is not
-legal to pass all the begin messages to X-Plane but hide all the end messages).
-
-### [XPLMCommandPhase](/sdk/XPLMCommandPhase/)
-
-The phases of a command.
 
 | Name | Value | Description |
 | --- | --- | --- |
-| [xplm_CommandBegin](/sdk/xplm_CommandBegin/) | "0" | The command is being
-started. |
-| [xplm_CommandContinue](/sdk/xplm_CommandContinue/) | "1" | The command is
-continuing to execute. |
-| [xplm_CommandEnd](/sdk/xplm_CommandEnd/) | "2" | The command has ended. |
+| [xplm_MouseDown](/sdk/xplm_MouseDown/) | "1" |
+| [xplm_MouseDrag](/sdk/xplm_MouseDrag/) | "2" |
+| [xplm_MouseUp](/sdk/xplm_MouseUp/) | "3" |
 
-### [XPLMCommandRef](/sdk/XPLMCommandRef/)
+### [XPLMRegisterHotKey](/sdk/XPLMRegisterHotKey/)
 
 ```cpp
-typedef void * XPLMCommandRef;
-```
-
-A command ref is an opaque identifier for an X-Plane command. Command references
-stay the same for the life of your plugin but not between executions of X-Plane.
-Command refs are used to execute commands, create commands, and create callbacks
-for particular commands.
-
-Note that a command is not “owned” by a particular plugin. Since many plugins
-may participate in a command’s execution, the command does not go away if the
-plugin that created it is unloaded.
-
-### [XPLMCommandCallback_f](/sdk/XPLMCommandCallback_f/)
-
-```cpp
-typedef int (* XPLMCommandCallback_f)(
-                         XPLMCommandRef       inCommand,
-                         XPLMCommandPhase     inPhase,
+XPLM_API XPLMHotKeyID XPLMRegisterHotKey(
+                         char                 inVirtualKey,
+                         XPLMKeyFlags         inFlags,
+                         const char *         inDescription,
+                         XPLMHotKey_f         inCallback,
                          void *               inRefcon);
 
 ```
 
-A command callback is a function in your plugin that is called when a command is
-pressed. Your callback receives the command reference for the particular
-command, the phase of the command that is executing, and a reference pointer
-that you specify when registering the callback.
+This routine registers a hot key. You specify your preferred key stroke virtual
+key/flag combination, a description of what your callback does (so other
+plug-ins can describe the plug-in to the user for remapping) and a callback
+function and opaque pointer to pass in). A new hot key ID is returned. During
+execution, the actual key associated with your hot key may change, but you are
+insulated from this.
 
-Your command handler should return 1 to let processing of the command continue
-to other plugins and X-Plane, or 0 to halt processing, potentially bypassing
-X-Plane code.
-
-### [XPLMFindCommand](/sdk/XPLMFindCommand/)
+### [XPLMSetHotKeyCombination](/sdk/XPLMSetHotKeyCombination/)
 
 ```cpp
-XPLM_API XPLMCommandRef XPLMFindCommand(
-                         const char *         inName);
+XPLM_API void       XPLMSetHotKeyCombination(
+                         XPLMHotKeyID         inHotKey,
+                         char                 inVirtualKey,
+                         XPLMKeyFlags         inFlags);
 
 ```
 
-[XPLMFindCommand](/sdk/XPLMFindCommand/)looks up a command by name, and returns
-its command reference or NULL if the command does not exist.
+Remaps a hot key’s keystrokes. You may remap another plugin’s keystrokes.
 
-### [XPLMCommandBegin](/sdk/XPLMCommandBegin/)
+### [XPLMTakeAvionicsKeyboardFocus](/sdk/XPLMTakeAvionicsKeyboardFocus/)
 
 ```cpp
-XPLM_API void       XPLMCommandBegin(
-                         XPLMCommandRef       inCommand);
+XPLM_API void       XPLMTakeAvionicsKeyboardFocus(
+                         XPLMAvionicsID       inHandle);
 
 ```
 
-[XPLMCommandBegin](/sdk/XPLMCommandBegin/)starts the execution of a command,
-specified by its command reference. The command is “held down”
-until[XPLMCommandEnd](/sdk/XPLMCommandEnd/)is called. You must balance
-each[XPLMCommandBegin](/sdk/XPLMCommandBegin/)call with
-an[XPLMCommandEnd](/sdk/XPLMCommandEnd/)call.
+This routine gives keyboard focus to the popup window of a custom cockpit
+device, if it is visible.
 
-### [XPLMCommandEnd](/sdk/XPLMCommandEnd/)
+### [XPLMTakeKeyboardFocus](/sdk/XPLMTakeKeyboardFocus/)
 
 ```cpp
-XPLM_API void       XPLMCommandEnd(
-                         XPLMCommandRef       inCommand);
+XPLM_API void       XPLMTakeKeyboardFocus(
+                         XPLMWindowID         inWindow);
 
 ```
 
-[XPLMCommandEnd](/sdk/XPLMCommandEnd/)ends the execution of a given command that
-was started with[XPLMCommandBegin](/sdk/XPLMCommandBegin/). You must not
-issue[XPLMCommandEnd](/sdk/XPLMCommandEnd/)for a command you did not begin.
+This routine gives a specific window keyboard focus. Keystrokes will be sent to
+that window. Pass a window ID of 0 to remove keyboard focus from any
+plugin-created windows and instead pass keyboard strokes directly to X-Plane.
 
-### [XPLMCommandOnce](/sdk/XPLMCommandOnce/)
+### [XPLMUnregisterHotKey](/sdk/XPLMUnregisterHotKey/)
 
 ```cpp
-XPLM_API void       XPLMCommandOnce(
-                         XPLMCommandRef       inCommand);
+XPLM_API void       XPLMUnregisterHotKey(
+                         XPLMHotKeyID         inHotKey);
 
 ```
 
-This executes a given command momentarily, that is, the command begins and ends
-immediately. This is the equivalent of
-calling[XPLMCommandBegin](/sdk/XPLMCommandBegin/)()
-and[XPLMCommandEnd](/sdk/XPLMCommandEnd/)() back to back.
+Unregisters a hot key. You can only unregister your own hot keys.
 
-### [XPLMCreateCommand](/sdk/XPLMCreateCommand/)
+### [XPLoseKeyboardFocus](/sdk/XPLoseKeyboardFocus/)
 
 ```cpp
-XPLM_API XPLMCommandRef XPLMCreateCommand(
-                         const char *         inName,
-                         const char *         inDescription);
+WIDGET_API void       XPLoseKeyboardFocus(
+                         XPWidgetID           inWidget);
 
 ```
 
-[XPLMCreateCommand](/sdk/XPLMCreateCommand/)creates a new command for a given
-string. If the command already exists, the existing command reference is
-returned. The description may appear in user interface contexts, such as the
-joystick configuration screen.
+This causes the specified widget to lose focus; focus is passed to its parent,
+or the next parent that will accept it. This routine does nothing if this widget
+does not have focus.
 
-### [XPLMRegisterCommandHandler](/sdk/XPLMRegisterCommandHandler/)
+### [XPMouseState_t](/sdk/XPMouseState_t/)
+
+When the mouse is clicked or dragged, a pointer to this structure is passed to
+your widget function.
 
 ```cpp
-XPLM_API void       XPLMRegisterCommandHandler(
-                         XPLMCommandRef       inComand,
-                         XPLMCommandCallback_f inHandler,
-                         int                  inBefore,
-                         void *               inRefcon);
+typedef struct {
+     int                       x;
+     int                       y;
+     // Mouse button number, left = 0 (right button not yet supported.
+     int                       button;
+     // Scroll wheel delta (button in this case would be the wheel axis number).
+     int                       delta;
+} XPMouseState_t;
+```
+
+### [XPSetKeyboardFocus](/sdk/XPSetKeyboardFocus/)
+
+```cpp
+WIDGET_API XPWidgetID XPSetKeyboardFocus(
+                         XPWidgetID           inWidget);
 
 ```
 
-[XPLMRegisterCommandHandler](/sdk/XPLMRegisterCommandHandler/)registers a
-callback to be called when a command is executed. You provide a callback with a
-reference pointer.
+Controls which widget will receive keystrokes. Pass the widget ID of the widget
+to get the keys. Note that if the widget does not care about keystrokes, they
+will go to the parent widget, and if no widget cares about them, they go to
+X-Plane.
 
-If inBefore is true, your command handler callback will be executed before
-X-Plane executes the command, and returning 0 from your callback will disable
-X-Plane’s processing of the command. If inBefore is false, your callback will
-run after X-Plane. (You can register a single callback both before and after a
-command.)
+If you set the keyboard focus to widget ID 0, X-Plane gets keyboard focus.
 
-### [XPLMUnregisterCommandHandler](/sdk/XPLMUnregisterCommandHandler/)
+This routine returns the widget ID that ended up with keyboard focus, or 0 for
+X-Plane.
+
+Keyboard focus is not changed if the new widget will not accept it. For setting
+to X-Plane, keyboard focus is always accepted.
+
+### [XPUDefocusKeyboard](/sdk/XPUDefocusKeyboard/)
 
 ```cpp
-XPLM_API void       XPLMUnregisterCommandHandler(
-                         XPLMCommandRef       inComand,
-                         XPLMCommandCallback_f inHandler,
-                         int                  inBefore,
-                         void *               inRefcon);
+WIDGET_API int        XPUDefocusKeyboard(
+                         XPWidgetMessage      inMessage,
+                         XPWidgetID           inWidget,
+                         intptr_t             inParam1,
+                         intptr_t             inParam2,
+                         int                  inEatClick);
 
 ```
 
-[XPLMUnregisterCommandHandler](/sdk/XPLMUnregisterCommandHandler/)removes a
-command callback registered
-with[XPLMRegisterCommandHandler](/sdk/XPLMRegisterCommandHandler/).
+This causes the widget to send keyboard focus back to X-Plane. This stops
+editing of any text fields, etc.
 
-## X-PLANE USER INTERACTION
+| |  |
+| --- | --- | --- |
+| [xpMsg_MouseDown](/sdk/xpMsg_MouseDown/) | "8" | You receive one mousedown event per click with a mouse-state structure pointed to by parameter 1.By accepting this you eat the click, otherwise your parent gets it. You will not receive drag andmouse up messages if you do not accept the down message.Handling this message consumes the mouse click, not handling it passes it to the next widget.You can act 'transparent' as a window by never handling moues clicks to certain areas.Dispatching: Up chain NOTE: Technically this is direct dispatched, but the widgets library will shipit to each widget until one consumes the click, making it effectively "up chain".Param 1: A pointer to an[XPMouseState_t](/sdk/XPMouseState_t/)containing the mouse status. |
 
-WARNING: The legacy user interaction API is deprecated; while it was the only
-way to run commands in X-Plane 6,7 and 8, it is obsolete, and was replaced by
-the command system API in X-Plane 9. You should not use this API; replace any of
-the calls below with XPLMCommand invocations based on persistent command
-strings. The documentation that follows is for historic reference only.
+| |  |
+| --- | --- | --- |
+| [xpMsg_MouseDrag](/sdk/xpMsg_MouseDrag/) | "9" | You receive a series of mouse drag messages (typically one per frame in the sim) as the mouse ismoved once you have accepted a mouse down message. Parameter one points to a mouse-state structuredescribing the mouse location. You will continue to receive these until the mouse button isreleased.You may receive multiple mouse state messages with the same mouse position. You will receive mousedrag events even if the mouse is dragged out of your current or original bounds at the time of themouse down.Dispatching: DirectParam 1: A pointer to an[XPMouseState_t](/sdk/XPMouseState_t/)containing the mouse status. |
 
-The legacy user interaction APIs let you simulate commands the user can do with
-a joystick, keyboard etc. Note that it is generally safer for future
-compatibility to use one of these commands than to manipulate the underlying sim
-data.
+| |  |
+| --- | --- | --- |
+| [xpMsg_MouseUp](/sdk/xpMsg_MouseUp/) | "10" | The mouseup event is sent once when the mouse button is released after a drag or click. You onlyreceive this message if you accept the mouseDown message. Parameter one points to a mouse statestructure.Dispatching: DirectParam 1: A pointer to an[XPMouseState_t](/sdk/XPMouseState_t/)containing the mouse status. |
 
-### [XPLMCommandKeyID](/sdk/XPLMCommandKeyID/)
+| |  |
+| --- | --- | --- |
+| [xpMsg_MouseWheel](/sdk/xpMsg_MouseWheel/) | "20" | The mouse wheel has moved.Return 1 to consume the mouse wheel move, or 0 to pass the message to a parent.Dispatching: Up chainParam 1: A pointer to an[XPMouseState_t](/sdk/XPMouseState_t/)containing the mouse status. |
 
-These enums represent all the keystrokes available within X-Plane. They can be
-sent to X-Plane directly. For example, you can reverse thrust using these
-enumerations.
+| |
+| --- | --- |
+| [xplm_MouseDown](/sdk/xplm_MouseDown/) | "1" |
 
-```cpp
-enum {
-          xplm_key_pause=0,
-          xplm_key_revthrust,
-          xplm_key_jettison,
-          xplm_key_brakesreg,
-          xplm_key_brakesmax,
-          xplm_key_gear,
-          xplm_key_timedn,
-          xplm_key_timeup,
-          xplm_key_fadec,
-          xplm_key_otto_dis,
-          xplm_key_otto_atr,
-          xplm_key_otto_asi,
-          xplm_key_otto_hdg,
-          xplm_key_otto_gps,
-          xplm_key_otto_lev,
-          xplm_key_otto_hnav,
-          xplm_key_otto_alt,
-          xplm_key_otto_vvi,
-          xplm_key_otto_vnav,
-          xplm_key_otto_nav1,
-          xplm_key_otto_nav2,
-          xplm_key_targ_dn,
-          xplm_key_targ_up,
-          xplm_key_hdgdn,
-          xplm_key_hdgup,
-          xplm_key_barodn,
-          xplm_key_baroup,
-          xplm_key_obs1dn,
-          xplm_key_obs1up,
-          xplm_key_obs2dn,
-          xplm_key_obs2up,
-          xplm_key_com1_1,
-          xplm_key_com1_2,
-          xplm_key_com1_3,
-          xplm_key_com1_4,
-          xplm_key_nav1_1,
-          xplm_key_nav1_2,
-          xplm_key_nav1_3,
-          xplm_key_nav1_4,
-          xplm_key_com2_1,
-          xplm_key_com2_2,
-          xplm_key_com2_3,
-          xplm_key_com2_4,
-          xplm_key_nav2_1,
-          xplm_key_nav2_2,
-          xplm_key_nav2_3,
-          xplm_key_nav2_4,
-          xplm_key_adf_1,
-          xplm_key_adf_2,
-          xplm_key_adf_3,
-          xplm_key_adf_4,
-          xplm_key_adf_5,
-          xplm_key_adf_6,
-          xplm_key_transpon_1,
-          xplm_key_transpon_2,
-          xplm_key_transpon_3,
-          xplm_key_transpon_4,
-          xplm_key_transpon_5,
-          xplm_key_transpon_6,
-          xplm_key_transpon_7,
-          xplm_key_transpon_8,
-          xplm_key_flapsup,
-          xplm_key_flapsdn,
-          xplm_key_cheatoff,
-          xplm_key_cheaton,
-          xplm_key_sbrkoff,
-          xplm_key_sbrkon,
-          xplm_key_ailtrimL,
-          xplm_key_ailtrimR,
-          xplm_key_rudtrimL,
-          xplm_key_rudtrimR,
-          xplm_key_elvtrimD,
-          xplm_key_elvtrimU,
-          xplm_key_forward,
-          xplm_key_down,
-          xplm_key_left,
-          xplm_key_right,
-          xplm_key_back,
-          xplm_key_tower,
-          xplm_key_runway,
-          xplm_key_chase,
-          xplm_key_free1,
-          xplm_key_free2,
-          xplm_key_spot,
-          xplm_key_fullscrn1,
-          xplm_key_fullscrn2,
-          xplm_key_tanspan,
-          xplm_key_smoke,
-          xplm_key_map,
-          xplm_key_zoomin,
-          xplm_key_zoomout,
-          xplm_key_cycledump,
-          xplm_key_replay,
-          xplm_key_tranID,
-          xplm_key_max
-};
-typedef int XPLMCommandKeyID;
-```
+| |
+| --- | --- |
+| [xplm_MouseDrag](/sdk/xplm_MouseDrag/) | "2" |
 
-### [XPLMCommandButtonID](/sdk/XPLMCommandButtonID/)
-
-These are enumerations for all of the things you can do with a joystick button
-in X-Plane. They currently match the buttons menu in the equipment setup dialog,
-but these enums will be stable even if they change in X-Plane.
-
-```cpp
-enum {
-          xplm_joy_nothing=0,
-          xplm_joy_start_all,
-          xplm_joy_start_0,
-          xplm_joy_start_1,
-          xplm_joy_start_2,
-          xplm_joy_start_3,
-          xplm_joy_start_4,
-          xplm_joy_start_5,
-          xplm_joy_start_6,
-          xplm_joy_start_7,
-          xplm_joy_throt_up,
-          xplm_joy_throt_dn,
-          xplm_joy_prop_up,
-          xplm_joy_prop_dn,
-          xplm_joy_mixt_up,
-          xplm_joy_mixt_dn,
-          xplm_joy_carb_tog,
-          xplm_joy_carb_on,
-          xplm_joy_carb_off,
-          xplm_joy_trev,
-          xplm_joy_trm_up,
-          xplm_joy_trm_dn,
-          xplm_joy_rot_trm_up,
-          xplm_joy_rot_trm_dn,
-          xplm_joy_rud_lft,
-          xplm_joy_rud_cntr,
-          xplm_joy_rud_rgt,
-          xplm_joy_ail_lft,
-          xplm_joy_ail_cntr,
-          xplm_joy_ail_rgt,
-          xplm_joy_B_rud_lft,
-          xplm_joy_B_rud_rgt,
-          xplm_joy_look_up,
-          xplm_joy_look_dn,
-          xplm_joy_look_lft,
-          xplm_joy_look_rgt,
-          xplm_joy_glance_l,
-          xplm_joy_glance_r,
-          xplm_joy_v_fnh,
-          xplm_joy_v_fwh,
-          xplm_joy_v_tra,
-          xplm_joy_v_twr,
-          xplm_joy_v_run,
-          xplm_joy_v_cha,
-          xplm_joy_v_fr1,
-          xplm_joy_v_fr2,
-          xplm_joy_v_spo,
-          xplm_joy_flapsup,
-          xplm_joy_flapsdn,
-          xplm_joy_vctswpfwd,
-          xplm_joy_vctswpaft,
-          xplm_joy_gear_tog,
-          xplm_joy_gear_up,
-          xplm_joy_gear_down,
-          xplm_joy_lft_brake,
-          xplm_joy_rgt_brake,
-          xplm_joy_brakesREG,
-          xplm_joy_brakesMAX,
-          xplm_joy_speedbrake,
-          xplm_joy_ott_dis,
-          xplm_joy_ott_atr,
-          xplm_joy_ott_asi,
-          xplm_joy_ott_hdg,
-          xplm_joy_ott_alt,
-          xplm_joy_ott_vvi,
-          xplm_joy_tim_start,
-          xplm_joy_tim_reset,
-          xplm_joy_ecam_up,
-          xplm_joy_ecam_dn,
-          xplm_joy_fadec,
-          xplm_joy_yaw_damp,
-          xplm_joy_art_stab,
-          xplm_joy_chute,
-          xplm_joy_JATO,
-          xplm_joy_arrest,
-          xplm_joy_jettison,
-          xplm_joy_fuel_dump,
-          xplm_joy_puffsmoke,
-          xplm_joy_prerotate,
-          xplm_joy_UL_prerot,
-          xplm_joy_UL_collec,
-          xplm_joy_TOGA,
-          xplm_joy_shutdown,
-          xplm_joy_con_atc,
-          xplm_joy_fail_now,
-          xplm_joy_pause,
-          xplm_joy_rock_up,
-          xplm_joy_rock_dn,
-          xplm_joy_rock_lft,
-          xplm_joy_rock_rgt,
-          xplm_joy_rock_for,
-          xplm_joy_rock_aft,
-          xplm_joy_idle_hilo,
-          xplm_joy_lanlights,
-          xplm_joy_max
-};
-typedef int XPLMCommandButtonID;
-```
-
-### [XPLMSimulateKeyPress](/sdk/XPLMSimulateKeyPress/)
-
-```cpp
-XPLM_API void       XPLMSimulateKeyPress(
-                         int                  inKeyType,
-                         int                  inKey);
-
-```
-
-This function simulates a key being pressed for X-Plane. The keystroke goes
-directly to X-Plane; it is never sent to any plug-ins. However, since this is a
-raw key stroke it may be mapped by the keys file or enter text into a field.
-
-Deprecated: use[XPLMCommandOnce](/sdk/XPLMCommandOnce/)
-
-### [XPLMCommandKeyStroke](/sdk/XPLMCommandKeyStroke/)
-
-```cpp
-XPLM_API void       XPLMCommandKeyStroke(
-                         XPLMCommandKeyID     inKey);
-
-```
-
-This routine simulates a command-key stroke. However, the keys are done by
-function, not by actual letter, so this function works even if the user has
-remapped their keyboard. Examples of things you might do with this include
-pausing the simulator.
-
-Deprecated: use[XPLMCommandOnce](/sdk/XPLMCommandOnce/)
-
-### [XPLMCommandButtonPress](/sdk/XPLMCommandButtonPress/)
-
-```cpp
-XPLM_API void       XPLMCommandButtonPress(
-                         XPLMCommandButtonID  inButton);
-
-```
-
-This function simulates any of the actions that might be taken by pressing a
-joystick button. However, this lets you call the command directly rather than
-having to know which button is mapped where. Important: you must release each
-button you press. The APIs are separate so that you can ‘hold down’ a button for
-a fixed amount of time.
-
-Deprecated: use[XPLMCommandBegin](/sdk/XPLMCommandBegin/).
-
-### [XPLMCommandButtonRelease](/sdk/XPLMCommandButtonRelease/)
-
-```cpp
-XPLM_API void       XPLMCommandButtonRelease(
-                         XPLMCommandButtonID  inButton);
-
-```
-
-This function simulates any of the actions that might be taken by pressing a
-joystick button. See[XPLMCommandButtonPress](/sdk/XPLMCommandButtonPress/).
-
-Deprecated: use[XPLMCommandEnd](/sdk/XPLMCommandEnd/).
+| |
+| --- | --- |
+| [xplm_MouseUp](/sdk/xplm_MouseUp/) | "3" |
 

@@ -1,0 +1,53 @@
+{
+  "integration_test_summary": {
+    "timestamp": "2025-06-24T22:38:12.657549+00:00",
+    "tester_version": "1.0.0",
+    "total_tests": 1,
+    "passed_tests": 1,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "total_duration": 0.02200031280517578,
+    "total_memory_usage": 4.859375,
+    "tests_passed": true
+  },
+  "test_results": [
+    {
+      "test_name": "Performance Benchmarks",
+      "success": true,
+      "message": "All benchmarks within thresholds (total: 0.022s)",
+      "duration": 0.02200031280517578,
+      "memory_usage": 4.859375,
+      "timestamp": "2025-06-24T22:38:12.656550+00:00",
+      "details": {
+        "benchmarks": {
+          "config_load_time": 0.0,
+          "file_enumeration_time": 0.0,
+          "files_enumerated": 20,
+          "doc_load_time": 0.001999378204345703,
+          "loaded_files": 10,
+          "total_content_size": 251092,
+          "search_time": 0.0,
+          "search_results": 4,
+          "processed_content_load_time": 0.014000654220581055,
+          "processed_content_size": 2408303
+        },
+        "performance_issues": [],
+        "total_test_duration": 0.02200031280517578,
+        "memory_usage": 4.859375,
+        "throughput_files_per_second": 5001.554972573336,
+        "throughput_bytes_per_second": 125585044.11733842
+      }
+    }
+  ],
+  "performance_summary": {
+    "fastest_test": "Performance Benchmarks",
+    "slowest_test": "Performance Benchmarks",
+    "average_duration": 0.02200031280517578,
+    "memory_efficient_test": "Performance Benchmarks",
+    "memory_intensive_test": "Performance Benchmarks",
+    "average_memory_usage": 4.859375
+  },
+  "recommendations": [
+    "All integration tests passing - system ready for production use"
+  ]
+}
