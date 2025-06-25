@@ -2,7 +2,7 @@
 title: "Widget System"
 description: "X-Plane SDK Widget System documentation"
 category: "Widget_System"
-date: "2025-06-24T17:34:11.197947"
+date: "2025-06-25T15:45:56.655424"
 ---
 
 # Widget System

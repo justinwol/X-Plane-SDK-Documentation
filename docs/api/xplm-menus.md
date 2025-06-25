@@ -2,7 +2,7 @@
 title: "Menus APIs"
 description: "X-Plane SDK Menus APIs documentation"
 category: "XPLM_Menus"
-date: "2025-06-24T17:34:11.203012"
+date: "2025-06-25T15:45:56.659424"
 ---
 
 # Menus APIs

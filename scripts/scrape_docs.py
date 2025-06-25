@@ -602,21 +602,21 @@ def main():
         
         logger.info(f"Found {len(all_urls)} URLs to process")
         
-        # Option 2: Incremental scraping (use change detection)
-        logger.info("Detecting changed URLs...")
-        from change_detector import get_changed_urls
-        changed_urls = get_changed_urls(all_urls)
+        # Option 1: Scrape all URLs (full scrape) - ENABLED for complete regeneration
+        logger.info("Starting full scrape of all URLs...")
+        scraped_data = scrape_all_urls(all_urls)
         
-        if not changed_urls:
-            logger.info("No changed URLs detected. All content is up to date.")
-            return
-            
-        logger.info(f"Found {len(changed_urls)} URLs that need scraping")
-        scraped_data = scrape_changed_urls_only(changed_urls)
-        
-        # Option 1: Scrape all URLs (full scrape) - commented out for incremental mode
-        # logger.info("Starting full scrape of all URLs...")
-        # scraped_data = scrape_all_urls(all_urls)
+        # Option 2: Incremental scraping (use change detection) - DISABLED for full regeneration
+        # logger.info("Detecting changed URLs...")
+        # from change_detector import get_changed_urls
+        # changed_urls = get_changed_urls(all_urls)
+        #
+        # if not changed_urls:
+        #     logger.info("No changed URLs detected. All content is up to date.")
+        #     return
+        #
+        # logger.info(f"Found {len(changed_urls)} URLs that need scraping")
+        # scraped_data = scrape_changed_urls_only(changed_urls)
         
         # Save results
         logger.info("Saving scraped content...")

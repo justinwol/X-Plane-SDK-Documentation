@@ -2,7 +2,7 @@
 title: "Plugin APIs"
 description: "X-Plane SDK Plugin APIs documentation"
 category: "XPLM_Plugin"
-date: "2025-06-24T17:34:11.205012"
+date: "2025-06-25T15:45:56.661425"
 ---
 
 # Plugin APIs

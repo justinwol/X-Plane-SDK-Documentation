@@ -1,3 +1,10 @@
+---
+title: "X-Plane SDK Examples and Tutorials"
+description: "Code examples, tutorials, and best practices for X-Plane SDK development"
+category: "examples"
+date: "2025-06-25T15:36:00Z"
+---
+
 # X-Plane SDK Examples and Tutorials
 
 This directory contains processed code examples and tutorials for the X-Plane SDK.

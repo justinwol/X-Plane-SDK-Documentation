@@ -2,7 +2,7 @@
 title: "Utilities APIs"
 description: "X-Plane SDK Utilities APIs documentation"
 category: "XPLM_Utilities"
-date: "2025-06-24T17:34:11.207525"
+date: "2025-06-25T15:45:56.663423"
 ---
 
 # Utilities APIs

@@ -2,7 +2,7 @@
 title: "Navigation APIs"
 description: "X-Plane SDK Navigation APIs documentation"
 category: "XPLM_Navigation"
-date: "2025-06-24T17:34:11.203012"
+date: "2025-06-25T15:45:56.660423"
 ---
 
 # Navigation APIs

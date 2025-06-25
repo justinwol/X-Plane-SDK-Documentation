@@ -198,8 +198,17 @@ class DocumentationValidator:
                 # Check for proper heading hierarchy
                 lines = content.split('\n')
                 heading_levels = []
+                in_code_block = False
+                code_block_pattern = re.compile(r'^```')
+                
                 for i, line in enumerate(lines, 1):
-                    if line.startswith('#'):
+                    # Track code block state
+                    if code_block_pattern.match(line):
+                        in_code_block = not in_code_block
+                        continue
+                    
+                    # Only check headings outside of code blocks
+                    if line.startswith('#') and not in_code_block:
                         level = len(line) - len(line.lstrip('#'))
                         heading_levels.append((level, i))
                         

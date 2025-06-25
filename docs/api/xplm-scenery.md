@@ -2,7 +2,7 @@
 title: "Scenery APIs"
 description: "X-Plane SDK Scenery APIs documentation"
 category: "XPLM_Scenery"
-date: "2025-06-24T17:34:11.206518"
+date: "2025-06-25T15:45:56.662424"
 ---
 
 # Scenery APIs

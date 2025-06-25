@@ -2,7 +2,7 @@
 title: "Camera APIs"
 description: "X-Plane SDK Camera APIs documentation"
 category: "XPLM_Camera"
-date: "2025-06-24T17:34:11.199009"
+date: "2025-06-25T15:45:56.655424"
 ---
 
 # Camera APIs

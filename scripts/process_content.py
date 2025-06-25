@@ -540,7 +540,7 @@ def extract_api_signatures(content: str) -> List[Dict[str, Any]]:
         # Parse HTML content for structured API information
         soup = BeautifulSoup(content, 'html.parser')
         
-        # Find function definitions
+        # Find function definitions using multiple patterns
         functions = soup.find_all(['div', 'section'], class_='function')
         
         for func_div in functions:
@@ -601,6 +601,49 @@ def extract_api_signatures(content: str) -> List[Dict[str, Any]]:
                 
                 enum_info['values'] = enum_values
                 signatures.append(enum_info)
+        
+        # Enhanced extraction: Look for function signatures in code blocks
+        code_blocks = soup.find_all('pre')
+        for code_block in code_blocks:
+            code_text = code_block.get_text(strip=True)
+            
+            # Look for C/C++ function signatures
+            function_patterns = [
+                r'XPLM_API\s+(\w+)\s+(\w+)\s*\([^)]*\)',  # XPLM_API functions
+                r'(\w+)\s+(\w+)\s*\([^)]*\)\s*;',         # Standard C functions
+                r'typedef\s+(\w+)\s*\([^)]*\)\s*(\w+)',   # Function typedefs
+            ]
+            
+            for pattern in function_patterns:
+                matches = re.finditer(pattern, code_text, re.MULTILINE)
+                for match in matches:
+                    if len(match.groups()) >= 2:
+                        func_info = {
+                            'name': match.group(2) if 'XPLM_API' in match.group(0) else match.group(1),
+                            'signature': match.group(0),
+                            'type': 'function',
+                            'source': 'code_block_extraction'
+                        }
+                        
+                        # Avoid duplicates
+                        if not any(sig.get('name') == func_info['name'] for sig in signatures):
+                            signatures.append(func_info)
+            
+            # Look for #define statements (constants and macros)
+            define_pattern = r'#define\s+(\w+)\s+(.+)'
+            define_matches = re.finditer(define_pattern, code_text, re.MULTILINE)
+            for match in define_matches:
+                define_info = {
+                    'name': match.group(1),
+                    'value': match.group(2).strip(),
+                    'type': 'define',
+                    'signature': match.group(0),
+                    'source': 'code_block_extraction'
+                }
+                
+                # Avoid duplicates
+                if not any(sig.get('name') == define_info['name'] for sig in signatures):
+                    signatures.append(define_info)
         
         return signatures
         
@@ -676,6 +719,82 @@ def _parse_function_parameters(signature: str) -> List[Dict[str, str]]:
         
     except Exception as e:
         logger.error(f"Error parsing function parameters: {e}")
+        return []
+
+
+def extract_code_examples(content: str) -> List[Dict[str, Any]]:
+    """
+    Extract code examples from content for Context7 usefulness.
+    
+    Args:
+        content: Content to parse for code examples
+        
+    Returns:
+        List[Dict]: List of code examples with metadata
+    """
+    try:
+        examples = []
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Find all code blocks
+        code_blocks = soup.find_all('pre')
+        
+        for i, code_block in enumerate(code_blocks):
+            code_text = code_block.get_text(strip=True)
+            
+            # Skip very short code snippets (likely just single definitions)
+            if len(code_text.split('\n')) < 2 and len(code_text) < 50:
+                continue
+            
+            # Determine language from context or content
+            language = 'cpp'  # Default for X-Plane SDK
+            
+            # Look for language hints in parent elements
+            parent = code_block.parent
+            if parent:
+                parent_text = parent.get_text().lower()
+                if 'javascript' in parent_text or 'js' in parent_text:
+                    language = 'javascript'
+                elif 'python' in parent_text:
+                    language = 'python'
+                elif 'c++' in parent_text or 'cpp' in parent_text:
+                    language = 'cpp'
+                elif 'c' in parent_text and 'c++' not in parent_text:
+                    language = 'c'
+            
+            # Extract context (surrounding text)
+            context = ""
+            if parent:
+                # Get preceding paragraph or heading
+                prev_sibling = code_block.find_previous_sibling(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+                if prev_sibling:
+                    context = prev_sibling.get_text(strip=True)[:200]  # First 200 chars
+            
+            # Categorize the code example
+            example_type = 'snippet'
+            if len(code_text.split('\n')) > 10:
+                example_type = 'example'
+            if 'main(' in code_text or 'int main' in code_text:
+                example_type = 'complete_program'
+            if '#include' in code_text and len(code_text.split('\n')) > 5:
+                example_type = 'example'
+            
+            example_info = {
+                'id': f'example_{i}',
+                'code': code_text,
+                'language': language,
+                'type': example_type,
+                'context': context,
+                'line_count': len(code_text.split('\n')),
+                'char_count': len(code_text)
+            }
+            
+            examples.append(example_info)
+        
+        return examples
+        
+    except Exception as e:
+        logger.error(f"Error extracting code examples: {e}")
         return []
 
 
@@ -815,6 +934,7 @@ def process_scraped_content() -> Dict[str, Any]:
                 cleaned_html = clean_html_content(raw_html)
                 markdown_content = convert_to_markdown(cleaned_html)
                 api_signatures = extract_api_signatures(cleaned_html)
+                code_examples = extract_code_examples(cleaned_html)
                 category_info = categorize_content(url, cleaned_html)
                 
                 # Store processed content
@@ -824,6 +944,7 @@ def process_scraped_content() -> Dict[str, Any]:
                     'cleaned_html': cleaned_html,
                     'markdown': markdown_content,
                     'api_signatures': api_signatures,
+                    'code_examples': code_examples,
                     'category': category_info,
                     'own_functions': [sig['name'] for sig in api_signatures if 'name' in sig],
                     'processing_timestamp': datetime.now(timezone.utc).isoformat()

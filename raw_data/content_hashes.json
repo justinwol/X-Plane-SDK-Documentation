@@ -68,7 +68,7 @@
   "https://developer.x-plane.com/sdk/XPLMBankID/": "1342a0f1fcb5f1d0670149f39755bd4675c56649b94b8ee17a68047c3bf1fced",
   "https://developer.x-plane.com/sdk/XPLMBindTexture2d/": "7d8802652d6677b1b43574c125d153d7e068b6672d0d2cd8657fd7fb13518693",
   "https://developer.x-plane.com/sdk/XPLMBringWindowToFront/": "314a3a024c5eb53ea3f9380df2eccc196ca318fe56834e572f06e0bc3a678873",
-  "https://developer.x-plane.com/sdk/XPLMCamera/": "hash_0",
+  "https://developer.x-plane.com/sdk/XPLMCamera/": "2557c92a06158d137f3b6a36d81016b454a9c37d5f2b2c893e6e57fadfebafcd",
   "https://developer.x-plane.com/sdk/XPLMCameraControlDuration/": "7b6089e2d90fb92487781cad43029a036a1871724153af88ebe69eb348bf76b5",
   "https://developer.x-plane.com/sdk/XPLMCameraControl_f/": "baff615c53bc29c6aa6a3bc1db9a467b1f3e149eaeb763ca2b6ebd4a1b22b7b6",
   "https://developer.x-plane.com/sdk/XPLMCameraPosition_t/": "c220f20b24d956fd2a08e4f101696dee31280a74b01d4c995fa85ae357aab389",
@@ -111,7 +111,7 @@
   "https://developer.x-plane.com/sdk/XPLMCreateWindow_t/": "5140915c698adf8ac70dcc3ee106be06202b829bde6600b5afd9be6736b522ee",
   "https://developer.x-plane.com/sdk/XPLMCursorStatus/": "a96435a75e0210e118d720a3e608b8261c7e4142ac5f643a673ca5953fee1ad3",
   "https://developer.x-plane.com/sdk/XPLMCustomizeAvionics_t/": "c9c42b0eb345e263d1b73a1d71618283bbab09f48d850c6306671cd5c9c823a9",
-  "https://developer.x-plane.com/sdk/XPLMDataAccess/": "hash_1",
+  "https://developer.x-plane.com/sdk/XPLMDataAccess/": "d0addda2a542628f9097792c7a9cf2356861c3e0b16f33627138c9c61fc96c6e",
   "https://developer.x-plane.com/sdk/XPLMDataChanged_f/": "463bc636b3667bfeb9ea892fec5d184dc1870857a97f37a7ec47f1132da1eff5",
   "https://developer.x-plane.com/sdk/XPLMDataFileType/": "69a3c679364634527dad025662cc6008faf2e6acd64ecfed856444d814d82aef",
   "https://developer.x-plane.com/sdk/XPLMDataRef/": "efce59fe5795d49e5f792810772a219815c5f62b84f8ab0560c38aa6a2369c91",
@@ -131,7 +131,7 @@
   "https://developer.x-plane.com/sdk/XPLMDeviceID/": "175c595293ffb53ca940e623721f1d9a298f854ba567a891105544a7c9fe8be0",
   "https://developer.x-plane.com/sdk/XPLMDisableAIForPlane/": "f4f7180ffea66d7ca7b02b3eee463841783efa28712077495c10367d352d266d",
   "https://developer.x-plane.com/sdk/XPLMDisablePlugin/": "1ae3a1e3caed610a1e1372790457b8ef02cec5b215f402de9fdfa62efd46087d",
-  "https://developer.x-plane.com/sdk/XPLMDisplay/": "hash_2",
+  "https://developer.x-plane.com/sdk/XPLMDisplay/": "f86b744c95912c905c958ff36cf11c38465d3f70a5ea1259a7c864a884b78c24",
   "https://developer.x-plane.com/sdk/XPLMDontControlCamera/": "8d0c9c702c4da7a6ef64ac7212352d4db8d321ce52b507b6afd6dfa97232046b",
   "https://developer.x-plane.com/sdk/XPLMDrawAircraft/": "86852e71030ef5a21b7705be2b08887479fe69ae600ebba44b7c9bed24b6a872",
   "https://developer.x-plane.com/sdk/XPLMDrawCallback_f/": "ebecde045c4eaa8a14827aea06571191be48d4156d8059bc193fc9d1329744b3",
@@ -918,5 +918,5 @@
   "https://developer.x-plane.com/sdk/xplm_device_Primus_PFD_2/": "4c3bc02723478fc4a4e066418069a2909566e3c50abb176620b1688d5400d3fc",
   "https://developer.x-plane.com/sdk/xplm_device_Primus_RMU_1/": "3d96ecfa4d7f479f48fdd898f7a20ba8004cf8a155b8a7da3e267b165eca7d55",
   "https://developer.x-plane.com/sdk/xplm_device_Primus_RMU_2/": "3906028016c2fa8ecf6a594257b638cb5351caa070ff5529558cdba3943a1204",
-  "last_update": "2025-06-24T22:29:25Z"
+  "last_update": "2025-06-25T20:45:23Z"
 }

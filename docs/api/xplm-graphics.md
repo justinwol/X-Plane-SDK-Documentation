@@ -2,7 +2,7 @@
 title: "Graphics APIs"
 description: "X-Plane SDK Graphics APIs documentation"
 category: "XPLM_Graphics"
-date: "2025-06-24T17:34:11.201013"
+date: "2025-06-25T15:45:56.657425"
 ---
 
 # Graphics APIs

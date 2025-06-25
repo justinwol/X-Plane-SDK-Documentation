@@ -2,7 +2,7 @@
 title: "Map APIs"
 description: "X-Plane SDK Map APIs documentation"
 category: "XPLM_Map"
-date: "2025-06-24T17:34:11.202013"
+date: "2025-06-25T15:45:56.659424"
 ---
 
 # Map APIs

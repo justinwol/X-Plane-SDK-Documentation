@@ -2,7 +2,7 @@
 title: "Planes APIs"
 description: "X-Plane SDK Planes APIs documentation"
 category: "XPLM_Planes"
-date: "2025-06-24T17:34:11.204012"
+date: "2025-06-25T15:45:56.660423"
 ---
 
 # Planes APIs
